@@ -87,7 +87,7 @@ Der Vorteil dieses Angriffes gegenüber des double-sided Rowhammer ist, dass er 
 
 Die Prefetch Side-Channel Attacke aus \cite{DBLP:conf/ccs/2016} dient dazu, zu einer virtuellen Adresse die dazugehörige physikalische Adresse herauszufinden. 
 
-Der virtuellen Adressraum jedes Prozesses ist unterteilt in zwei Bereiche. Den User und Kernel Bereich. Ein laufender Prozess im User Modus kann lediglich auf den User Bereich zugreifen und im Kernel Bereich weder lesen noch schreiben. Dies ist nur möglich wenn die CPU im Kernel-Modus läuft und somit dem Kernel vorbehalten. Trotzdem ist auch der Kernel Bereich im virtuellen Adressraum jedes Prozesses enthalten.
+Der virtuellen Adressraum jedes Prozesses ist unterteilt in zwei Bereiche. Den User und Kernel Bereich. Ein laufender Prozess im User Modus kann lediglich auf den User Bereich zugreifen und im Kernel Bereich weder lesen noch schreiben. Dies ist nur möglich, wenn die CPU im Kernel-Modus läuft und somit dem Kernel vorbehalten. Trotzdem ist auch der Kernel Bereich im virtuellen Adressraum jedes Prozesses enthalten.
 
 Bei einigen Betriebssystemen, insbesondere beim Linux Kernel \cite{virtual-momory}, findet sich im Kernel Bereich eine Region in welcher der gesamte physikalische Speicher in den virtuellen Adressraum gemappt wird.
 Zum Beispiel befindet sich beim Linux Kernel diese Region im virtuellen Adressbereich von \texttt{0xffff880000000000} bis \texttt{0xffffc7ffffffffff}.
@@ -108,21 +108,21 @@ Ist für eine virtuelle Adresse aus dem User Bereich die dazugehörige virtuelle
 
 Um die passende virtuelle Adresse im Kernel Bereich zu finden kann nun folgende Eigenschaft ausgenutzt werden:
 
-Auf modernen Prozessoren gibt es einen \texttt{prefetch} Befehl, welche die CPU darauf hinweist, dass die Daten unter einer bestimmten Adresse bald benötigt werden. Die CPU lädt diese dann in den Cache, damit sie schneller verfügbar sind. Entscheidend dabei ist, dass man jede Adresse aus dem virtuellen Adressbereich mittels \texttt{prefetch} in den Cache laden kann, auch solche die im Kernel Bereich liegen. Der Cache der CPU beruht jedoch auf physikalischen Adressen. Das bedeutet, wenn eine Adresse in den Cache geladen wird, wird bei jedem zugriff auf eine virtuelle Adresse die auf die physikalische zeigt, auf den Cache zugegriffen.
+Auf modernen Prozessoren gibt es einen \texttt{prefetch} Befehl, welche die CPU darauf hinweist, dass die Daten unter einer bestimmten Adresse bald benötigt werden. Die CPU lädt diese dann in den Cache, damit sie schneller verfügbar sind. Entscheidend dabei ist, dass man jede Adresse aus dem virtuellen Adressbereich mittels \texttt{prefetch} in den Cache laden kann, auch solche die im Kernel Bereich liegen. Der Cache der CPU beruht jedoch auf physikalischen Adressen. Das bedeutet, wenn eine Adresse in den Cache geladen wird, wird bei jedem Zugriff auf eine virtuelle Adresse die auf die physikalische zeigt, auf den Cache zugegriffen.
 
 Mithilfe des prefetchings kann nun eine Cache Timing Attacke durchgeführt werden, welche wie folgt abläuft:
 \begin{enumerate}
 	\item Auf die virtuelle Adresse im User Bereich, zu welche die dazugehörige im Kernel Bereich gefunden werden soll, wird ein \texttt{flush} ausgeführt. Dadurch wird diese aus allen Caches der CPU entfernt. 
 	\item Anschließend wird eine virtuelle Adresse aus dem Kernel Bereich mittels eines \texttt{prefetch} in den Cache geladen.
-	\item Dann wird lesen auf die Adresse aus dem User Bereich zugegriffen. Erfolgt der Lesezugriff schnell, wurde die Adresse wahrscheinlich zwischendurch in den Cache geladen und die virtuellen Adressen aus User und Kernel Bereich zeigen aus die gleiche physikalische Adresse. Erfolgt der Zugriff langsam ist dies wahrscheinlich nicht der Fall.
+	\item Dann wird lesend auf die Adresse aus dem User Bereich zugegriffen. Erfolgt der Lesezugriff schnell, wurde die Adresse wahrscheinlich zwischendurch in den Cache geladen und die virtuellen Adressen aus User und Kernel Bereich zeigen aus die gleiche physikalische Adresse. Erfolgt der Zugriff langsam ist dies wahrscheinlich nicht der Fall.
 \end{enumerate}
 
-Diese Schritte können nun für alle virtuellen Adressen von texttt{0xffff880000000000} bis \texttt{0xffffc7ffffffffff} wiederholt werden, bis einmal ein schneller Zugriff erfolgt und somit die passende Adresse aus dem Kernel Bereich gefunden wurde.
+Diese Schritte können nun für alle virtuellen Adressen von \texttt{0xffff880000000000} bis \texttt{0xffffc7ffffffffff} wiederholt werden, bis einmal ein schneller Zugriff erfolgt und somit die passende Adresse aus dem Kernel Bereich gefunden wurde.
 
 Um zuverlässig ein korrektes Ergebnis zu erhalten muss im dritten Schritt sehr hochauflösend die Zeit gemessen werden. Dies kann mit Hilfe des \texttt{rdtsc} Befehls erfolgen, mit dem die Anzahl an Clock-Zyklen der CPU gemessen werden können. Nach \cite{DBLP:conf/ccs/2016} liegt die Anzahl der Zyklen bei einem Zugriff auf Cache bei circa 180, und ansonsten bei circa 380.
-Weiter muss die Messung für jede zu prüfende Adresse aus dem Kernel Bereich sehr oft durchgeführt werden, da der \texttt{prefetch} Befehl nicht zuverlässig ist. Er weißt die CPU lediglich darauf hin die Daten in den Cache zu laden, die Entscheidung ob dies wirklich erfolgt liegt jedoch bei der CPU.
+Weiter muss die Messung für jede zu prüfende Adresse aus dem Kernel Bereich sehr oft durchgeführt werden, da der \texttt{prefetch} Befehl nicht zuverlässig ist. Er weißt die CPU lediglich darauf hin, die Daten in den Cache zu laden. Die Entscheidung ob dies wirklich erfolgt, liegt jedoch bei der CPU.
 
-Wurde die passende Adresse im Kernel Bereich gefunden lässt sich anschließend wie oben beschrieben die physikalische daraus ableiten. 
+Wurde die passende Adresse im Kernel Bereich gefunden, lässt sich anschließend wie oben beschrieben die physikalische daraus ableiten. 
 % TODO code
 
 
