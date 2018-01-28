@@ -26,7 +26,7 @@ Obwohl sich die korrekten Adressen im Direct Mapping bei uns nicht mit Hilfe des
 
 Wie schnell der Angriff durchführbar ist, hängt in diesem Fall direkt mit der Auffälligkeit zusammen. Die Schnelligkeit ist nur davon abhängig, wie schnell nacheinander das \texttt{flush}, \texttt{prefetch} und \texttt{reload} ausgeführt werden kann. In unserem Test wurden für eine Adresse ungefähr 0.07 Sekunden zum überprüfen benötigt. Da eine Page 4 Kilobyte groß ist können in einer Minute circa 3.42 Megabyte getestet werden. Um ein Gigabyte zu testen werden dementsprechend 4 Stunden und 50 Minuten benötigt. Da in einem Schlechten Fall ein Großteil des Direct Mappings durchsucht werden muss ist zu sehen, dass der Angriff sehr lange dauern kann.
 
-Das Durchsuchen des Direct Mappings fürht weiterhin zu einer sehr hohen CPU lasst. Bei unseren Tests wurde ein CPU Kern dabei während des kompletten Angriffs auf 100 Prozent ausgelastet. Es ist zwar möglich die Auslastung zu reduzieren, dabei steigt jedoch selbstverständlich die benötigte Dauer an.
+Das Durchsuchen des Direct Mappings führt weiterhin zu einer sehr hohen CPU lasst. Bei unseren Tests wurde ein CPU Kern dabei während des kompletten Angriffs auf 100 Prozent ausgelastet. Es ist zwar möglich die Auslastung zu reduzieren, dabei steigt jedoch selbstverständlich die benötigte Dauer an.
 
 Sollte der Angriff auf einem fremdem System, das im Produktiveinsatz ist, stattfinden, so würde er wahrscheinlich entdeckt werden. Wird das System hingegen während des Angriffs nicht genutzt beziehungsweise seine Auslastung überwacht, so wäre es durchaus vorstellbar, dass ein Angriff unbemerkt bleiben kann.
 
