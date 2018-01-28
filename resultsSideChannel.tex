@@ -1,0 +1,34 @@
+Um die Prefetch Side-Channel Attacke zu testen wurde der Code aus \cite{git-prefetch} genutzt. Der C Code in welchem die Attacke implementiert ist findet sich dabei in der Datei \emph{v2p.c}. In dieser ist folgendes implementiert:
+Zuerst wird Speicher allokiert. Anschließend wird im Kernel Bereich des Arbeitsspeichers, ab der Adresse \texttt{0xffff880000000000} (minus ein Offset auf Grund von KASLR), versucht das Direct Mapping des allokierten Speichers zu finden. Dafür wird der Speicher aus dem Cache geflushed, anschließend eine Adresse aus dem Kernel Bereich mittels \texttt{prefetch} geladen und dann unter Messung der Zeit lesend auf den Speicher zugegriffen. Erfolgt der Zugriff unter 200 Zyklen, so wurde der Speicher nach dem entfernen aus dem Cache wieder geladen. Dieses \texttt{flush}, \texttt{prefetch}, \texttt{reload} wird aufsteigend für je alle 4 Kilobyte des Speichers ausgeführt.
+~\\
+
+
+\subsubsection{Durchführbarkeit \& Zuverlässigkeit}
+Bei der Durchführbarkeit traten direkt zu Beginn Probleme auf. Da dieser Angriff zwingend das Dircet Mapping des kompletten Arbeitsspeicher im virtuellen Adressbereich des Kernels benötigt, ist er mit einem aktuellen Linux Kernel nicht durchführbar. Durch das Feature Kernel page-table isolation (KPTI), welches im aktuellen Kernel 4.15 eingeführt und bereits auf die Langzeitversionen 4.4.110, 4.9.75 und 4.14.11 zurückportiert wurde, wird der Angriff verhindert, da nicht mehr der komplette Kernel Bereich in der virtuellen Arbeitsspeicher jedes Prozesses gemappt wird. Die Nutzung eines aktuellen Kernels stellt in diesem Fall einen ausreichenden Schutz gegen den Angriff dar.
+
+Des weiteren ist es für die Durchführbarkeit von Vorteil, wenn das Sicherheitsfeature Kernel address space layout randomization (KASLR) im Kernel deaktiviert ist. Hierdurch wird der genau Beginn des Direct Mapping bekannt und es müssen weniger Adressen probiert werden, bis die korrekte gefunden wurde. Zusätzlich wird direkt die physikalische Adresse offenbart, falls KASLR deaktiviert ist. Die physikalische Adresse ist zwar für den Angriff nicht zwingend notwendig, ermöglicht es jedoch beim testen zu überprüfen, ob wirklich die korrekte Adresse gefunden wurde.
+
+Bei einem Kernel ohne KPTI und KASLR wird es einfach möglich den Code zu testen, indem das Tool ausgeführt wird und gleichzeitig mittels der Datei \texttt{pagemap} und root Rechten die korrekte physikalische Adresse des allokieren Speichers ermittelt wird. Findet das Tool im Direct Mapping eine Adresse, welche auf den gleichen Arbeitsspeicher wie der allokierte Speicher zeigt, so kann diese Adresse, abzüglich des Direct Mapping Offsets von \texttt{0xffff880000000000}, mit der vorher ermittelten physikalischen Adresse verglichen werden. Arbeitet das Tool korrekt sollten diese gleich sein.
+
+Bei den Tests ohne KPTI und KASLR stellte sich jedoch heraus, dass das Tool nicht in der Lage war die korrekten Adressen im Direct Mapping beziehungsweise die physikalischen Adressen zu ermitteln.
+
+Zum einen dauerte ein Lesezugriff auf den allokierten Speicher, trotz \texttt{prefetch} auf die korrekte Adresse im Direct Mapping, deutlich über 200 Zyklen. Dies bedeutet, dass der allokierte Speicher nicht in den Cache geladen wurde. Aus welchem Grund ein \texttt{prefetch} auf die korrekte Adresse nicht dafür sorgte, dass der allokierte Speicher in den Cache geladen wurde, konnte ermittelt werden.
+
+Um zu überprüfen ob der Code an sich korrekt arbeitet, wurde er so abgeändert, dass er nicht im Kernel Bereich des virtuellen Arbeitsspeichers versucht den allokieren Speicher zu finden, sonder direkt im User Bereich. Dabei stellte sich heraus, dass in diesem Fall immer korrekt der allokierte Speicher gefunden wurde. Ein \texttt{prefetch} auf die korrekte Adresse sorgte in diesem Fall immer dafür, dass ein anschließender Lesezugriff unter 100 CPU Zyklen benötigte.
+
+Um zu ermitteln was wieso der Code im User Bereich funktioniert, jedoch nicht im Kernel Bereich, wurde der Erstautor der Arbeit \cite{DBLP:journals/corr/abs-1710-00551}, Daniel Gruss, kontaktiert. Dieser wies darauf hin, dass die beschriebene Attacke wahrscheinlich in nahem Zusammenhang zu der aktuellen Meltdown Attacke steht und zu überprüfen wäre ob für Meltdown eine Verwundbarkeit besteht. Bei einer Verwundbarkeit für Meltdown wäre auch eine Verwundbarkeit für die Prefetch Side-Channel Attacke sehr wahrscheinlich. Dies wurde mit Hilfe der Tools aus \cite{git-meltdown} überprüft, welche eine Verwundbarkeit für Meltdown aufzeigten. Des weiteren wurde dazu geraten den Angriff unter unterschiedlichen Systembedingungen zu testen. Hierbei wurde die CPU während des Angriffes unterschiedlich stark ausgelastet und mittels des Linux Tools \texttt{stress} Interrupts erzeugt. Trotz der Verwundbarkeit für Meltdown und dem Variieren der Bedingungen während des Angriffs war es nicht möglich mit Hilfe des Tools die korrekte Adresse im Direct Mapping zu ermitteln.
+
+Ein weiter Punkt bezüglich der Zuverlässigkeit sind auftretende false positives. Während das Tool die korrekte Adresse nicht ermitteln konnte, traten jedoch trotzdem häufiger kurze Lesezugriffe auf den allokierten Speicher auf. Dies würde zuerst vermuten lassen, dass eine korrekte Adresse gefunden wurde, jedoch ergab sich bei der Überprüfung, dass dies nicht der Fall war.
+
+
+\subsubsection{Schnelligkeit \& Unauffälligkeit}
+Obwohl sich die korrekten Adressen im Direct Mapping bei uns nicht mit Hilfe des Tools ermitteln ließen, kann die Schnelligkeit und Unauffälligkeit zumindest theoretisch getestet und beschrieben werden.
+
+Wie schnell der Angriff durchführbar ist, hängt in diesem Fall direkt mit der Auffälligkeit zusammen. Die Schnelligkeit ist nur davon abhängig, wie schnell nacheinander das \texttt{flush}, \texttt{prefetch} und \texttt{reload} ausgeführt werden kann. In unserem Test wurden für eine Adresse ungefähr 0.07 Sekunden zum überprüfen benötigt. Da eine Page 4 Kilobyte groß ist können in einer Minute circa 3.42 Megabyte getestet werden. Um ein Gigabyte zu testen werden dementsprechend 4 Stunden und 50 Minuten benötigt. Da in einem Schlechten Fall ein Großteil des Direct Mappings durchsucht werden muss ist zu sehen, dass der Angriff sehr lange dauern kann.
+
+Das Durchsuchen des Direct Mappings fürht weiterhin zu einer sehr hohen CPU lasst. Bei unseren Tests wurde ein CPU Kern dabei während des kompletten Angriffs auf 100 Prozent ausgelastet. Es ist zwar möglich die Auslastung zu reduzieren, dabei steigt jedoch selbstverständlich die benötigte Dauer an.
+
+Sollte der Angriff auf einem fremdem System, das im Produktiveinsatz ist, stattfinden, so würde er wahrscheinlich entdeckt werden. Wird das System hingegen während des Angriffs nicht genutzt beziehungsweise seine Auslastung überwacht, so wäre es durchaus vorstellbar, dass ein Angriff unbemerkt bleiben kann.
+
+
+
