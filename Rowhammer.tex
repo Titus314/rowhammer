@@ -150,13 +150,45 @@ In \cite{vanderVeen:2016:DDR:2976749.2978406} wird eine deterministische Version
 
 
 \section{Work Description}
-Here you describe the work you have performed, problems you have solved and methods you have used. There is a fine balance between brevity and conciseness and ensuring that other people, if investing the time, would be able to reproduce your results given this description.
-\todo{this}
-Im Rahmen dieser Arbeit haben wir versucht den Rowhammer-Angriff nachzubilden. Dafür haben wir zunächst versucht den Code zum Paper auf unseren Systemen auszuführen. Die Implementation zum One-Location Rowhammer hat auf unseren Systemen auch nach mehreren Stunden Laufzeit es nicht geschafft ein Bitflip im Speicher zu erzeugen. Daher haben wir auch versucht die Implementation zum double-sided Rowhammer zu verwenden, um einen Bitflip zu erzeugen. Mit Hilfe dieser Implementation haben wir es dann nach ungefähr einer halben Stunde geschafft einen Bitflip zu erzeugen.
-Prefatch Oracle WIP
+Im Rahmen dieser Arbeit wird versucht den Rowhammer-Angriff nachzubilden. Dafür werden die einzelnen notwendigen Schritte, One-Location Rowhammer, memory Waylaying und Prefetch Side-Channel Attack, einzeln ausgeführt und auf Durchführbarkeit, Zuverlässigkeit, Schnelligkeit und Unauffälligkeit getestet. Außerdem wird betrachtet unter welchen Voraussetzungen es überhaupt zu solch einem Angriff kommen kann.
+
+Da unter \cite{git-rowhammer} und \cite{git-prefetch} bereits Code von den Autoren der Arbeit \cite{DBLP:journals/corr/abs-1710-00551} zu Verfügung gestellt wird, liegt der Schwerpunkt auf den Tests und nicht auf der Implementation.
+
+Folgende Punkte sollen in den Tests überprüft werden, um zu evaluieren wie sich der Angriff in der Praxis verhält und an welchen stellen Probleme für einen realistischen Einsatz auftreten:
+
+\begin{itemize}
+	\item Durchführbarkeit ~\\
+	Zuerst ist zu testen, ob der jeweilige Teilangriff überhaupt ausgeführt werden kann und unter welchen Bedingen die möglich ist. Es ist bekannt, dass Bitflips bei der Rowhammer Attacke je nach verwendetem Arbeitsspeicher unterschiedlich häufig auftreten. Des weiteren können die Angriffe auch teilweise durch Patches in der Software eingeschränkt oder verhindert werden.
+	
+	\item Zuverlässigkeit ~\\
+	Da die Angriffe teils auf Hardware Fehlern beruhen und teils ein sehr präzises Timing benötigen, stellt sich die Frage, wie zuverlässig die Angriffe bei wiederholtem Ausführen funktionieren und welchen Einfluss die aktuelle Ausführungsumgebung auf die Zuverlässigkeit hat. So könnten sich die beispielsweise die Angriffe bei einem System unter starker Last anders verhalten als im Leerlauf.
+	
+	\item Schnelligkeit ~\\
+	Bereits in der original Arbeit wird beschrieben, dass die Angriffe unter Umständen lange Laufzeiten benötigen. Hierbei ist zu testen, welche Teilangriffe eine lange Laufzeit benötigen und unter welchen Umständen dies der Fall ist. Ein Angriff welcher deutlich über 100 Stunden benötigt, bietet offensichtlich in der Praxis deutlich weniger Einsatzszenarien als ein kurz laufender Angriff.
+	
+	\item Unauffälligkeit ~\\
+	Letztendlich ist ein weiterer entscheidender Punkt die Unauffälligkeit der Angriffe. Wird beispielsweise bei einem Angriff eine sehr hohe Arbeitsspeicher Auslastung, hohe CPU Last oder extrem viele Speicher Zugriffe verursacht, so ist es wahrscheinlich, dass der Angriff auf einem System, bei welchem solche Ressourcen überwacht werden, entdeckt wird.
+	
+\end{itemize}
+
+Bei den Tests ist es von Vorteil, dass alle Teilangriffe voneinander unabhängig ausgeführt und getestet werden können. Dadurch wird es möglich genau festzustellen, welcher Teil des Gesamtangriffs Probleme verursacht und welcher Teil funktioniert. In dem Fall, dass alle Teile des Angriffs einzeln funktionieren ist offensichtlich auch der Gesamtangriff möglich.
+
+% TODO verwendete rechner (architektur, cpu,...)
+
+% TODO vielleicht eher in results
+%Die Implementation zum One-Location Rowhammer hat auf unseren Systemen auch nach mehreren Stunden Laufzeit es nicht geschafft ein Bitflip im Speicher zu erzeugen. Daher haben wir auch versucht die Implementation zum double-sided Rowhammer zu verwenden, um einen Bitflip zu erzeugen. Mit Hilfe dieser Implementation haben wir es dann nach ungefähr einer halben Stunde geschafft einen Bitflip zu erzeugen.
 
 \section{Results}
-\todo{here you will present and discuss your outcomes: implementation results or measurements or other project outcomes}
+Hier werden die Ergebnisse der einzelnen Test für die Teilangriffe vorgestellt. Die Ergebnisse der Teile können dabei unterschiedlich betrachtet werden. Welche Auswirkungen die Ergebnisse der Teile für den Gesamtangriff haben wird im letzten Kapitel diskutiert.
+
+\subsection{One-Location Rowhammer}
+\input{resultsRowhammer}
+
+\subsection{Memory Waylaying}
+\input{resultsWaylaying}
+
+\subsection{Prefetch Side-Channel Attack}
+\input{resultsSideChannel}
 
 \section{Conclusion}
 \todo{TBD last}
