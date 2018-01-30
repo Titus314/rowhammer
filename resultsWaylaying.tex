@@ -1,0 +1,11 @@
+Mit Hilfe des Waylaying hätten wir versuchen können, eine Seite an eine physikalische Adresse zu bewegen, die wir mit dem Orakel in Erfahrung gebracht haben. Ohne diese Adresse können wir nur eine beliebige Page an eine andere schreiben. Wir können aber nicht überprüfen, ob wir an der endgültigen Adresse einen Bitflip ausführen können. Im Folgendem haben wir dann die Originalimplementation\cite{git-rowhammer} verwendet und getestet.
+
+\subsubsection{Durchführbarkeit}
+Dieser Teil des Angriffes beruht nur darauf, dass einen physikalische Adresse, wenn sie aus dem Speicher entfernt wird und dann wieder neu hinzugefügt wird, an eine neue physikalische Adresse geschrieben wird. Dieses Verhalten konnte auf allen unseren Testrechnern nachgeprüft werden. Dementsprechend scheint dieser Teil des Angriffes gut durchführbar zu sein.
+\subsubsection{Zuverlässigkeit}
+Das große Problem bei diesem Angriff ist es, dass wir hiermit unsere Page beim einmaligen Ausführen nur an eine zufällige Adresse schreiben, welche höchstwahrscheinlich nicht die gesuchte ist. Daher muss jener wiederholt ausgeführt werden, sodass nach genügend vielen Ausführungen die Page an der richtigen Adresse ist. 
+Diese Art des Angriffes funktioniert besser, wenn das System stark belastet ist. Dann versucht nicht nur der Angreifer Pages in den Speicher zu laden, sondern auch eine Vielzahl an anderen Anwendungen. Dementsprechend sinkt der nötige Aufwand für den Angreifer
+\subsubsection{Schnelligkeit}
+Das einmalige ändern der physischen Adresse dauert im Durchschnitt 3,5 Sekunden. Aber wir müssen die Adresse wiederholt ändern, da wir nicht kontrollieren können, an welche physikalische Adresse unsere Page geschrieben wird, kann dieser Teil ziemlich lange dauern. In unseren Tests haben wir die Page nicht an die gewünschte Adresse schreiben können, aber der erwartete Zeitrahmen der Originalimplementation in deren Testumgebung beträgt mindestens 40 Stunden. Dies konnten wir in unserer Testumgebung nicht nachstellen.
+\subsubsection{Unauffälligkeit}
+Der große Vorteil bei diesem Ansatz ist, dass er sehr unauffällig ist, dass einzige was der Angriff macht, ist Pages in den Speicher zu laden, was jedes Programm machen darf. Auch ist die Auslastung der CPU bei diesem Teil äußerst gering und nicht von natürlichen Schwankungen zu unterscheiden.
