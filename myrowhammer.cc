@@ -10,9 +10,9 @@ int main()
 	
 	//allocate memory
 	size_t size=1024ULL*1024ULL*1024ULL*gbToAllocate;
-	printf("%zu\n",size);
+	//printf("%zu\n",size);
 	uint32_t* memory = (uint32_t*) malloc(size);
-	numberOfBlocks=size/sizeof(uint32_t)
+	size_t numberOfBlocks=size/sizeof(uint32_t);
 	
 	//initialise memory
 	for (int i = 0; i < numberOfBlocks; i++){
@@ -25,7 +25,7 @@ int main()
 	while(1){
 		for (int i = 0; i < numberLocations; i++)    {
 			//find location to hammer
-			size_t offset = rand() % numberOfBlocks);
+			size_t offset = rand() % numberOfBlocks;
 			volatile uint32_t* hammerLocation =  offset+memory;
 			printf("Hammering %d at offset %zu\n", tries, offset);
 			tries++;

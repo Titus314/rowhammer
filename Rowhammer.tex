@@ -40,9 +40,9 @@ Das Ziel des Projekts ist es einen One-Location Rowhammer Angriff nach dem Paper
 
 \section{Motivation}
 Das Ziel dieser Arbeit ist es, den aktuellen Stand der Rowhammer-Angriffe aus \cite{DBLP:journals/corr/abs-1710-00551} nachzubilden. In diesem Zusammenhang wird auf den One-Location Rowhammer Angriff eingegangen. Dies ist ein neuartiger Rowhammer Angriff, welcher aus technischer Sicht wesentlich einfacher durchzuführen ist, aber dessen Erfolgsquote deutlich geringer ist. Daher wollen wir untersuchen, ob dieser Angriff gut zu implementieren und auszuführen ist und ob die Erfolgsquote ausreichend hoch genug ist, um damit zuverlässig einen erfolgreichen Rowhammer Angriff durchzuführen.\\
-Weiter betrachten wir noch die Möglichkeit eines vollständigen Angriffs, bei welchem der One-Location Rowhammer Angriff genutzt wird um root Rechte auf einem Linux System zu erlangen. Die dazu weiteren notwendigen Schritte, eine Prefetch Side-Channel Attacke und Memory Waylaying, werden ebenfalls in \cite{DBLP:journals/corr/abs-1710-00551} vorgestellt. Auch diese sollen im Rahmen der getestet werden. 
+Weiter betrachten wir noch die Möglichkeit eines vollständigen Angriffs, bei welchem der One-Location Rowhammer Angriff genutzt wird um root Rechte auf einem Linux System zu erlangen. Die dazu weiteren notwendigen Schritte, eine Prefetch Side-Channel Attacke und Memory Waylaying, werden ebenfalls in \cite{DBLP:journals/corr/abs-1710-00551} vorgestellt. Auch diese sollen im Rahmen der Arbeit getestet werden. 
 
-Die einzelnen Teile des Angriffs sollen dabei einzeln auf die unterschiedliche Kriterien Durchführbarkeit, Zuverlässigkeit, Schnelligkeit und Auffälligkeit überprüft werden, um eine Abschätzung zu erhalten in wie weit der Angriff in der Praxis durchführbar ist. Letztendlich möchten wir eine Aussage darüber treffen, in welchen Szenarien dieser Angriff erfolgreich sein kann, unter welchen Bedingungen er entdeckt werden kann und welche Möglichkeiten es als Schutz dagegen gibt.
+Die einzelnen Teile des Angriffs sollen dabei einzeln auf die unterschiedliche Kriterien Durchführbarkeit, Zuverlässigkeit, Schnelligkeit und Auffälligkeit überprüft werden, um eine Abschätzung zu erhalten, in wie weit der Angriff in der Praxis durchführbar ist. Letztendlich möchten wir eine Aussage darüber treffen, in welchen Szenarien dieser Angriff erfolgreich sein kann, unter welchen Bedingungen er entdeckt werden kann und welche Möglichkeiten es als Schutz dagegen gibt.
 
 \section{Hintergrund}\label{sec:background}
 Die hier betrachteten Rowhammer Angriffe basieren auf folgendem Modell. Das System, auf welchem der Angriff ausgeführt werden soll, besitzt keine Maßnahmen der Hardware, um Rowhammer Angriff zu entdecken und zu unterbinden. Die verwendete Software darf jedoch versuchen, zu erkennen, ob ein Angriff stattfindet, und jenen zu verhindern. Damit solch ein Angriff überhaupt ausgeführt werden kann, muss der Angreifer in der Lage sein, ein beliebiges, nicht privilegiertes Programm auf dem System zu starten.\\
@@ -67,7 +67,7 @@ Der in dem Paper beschriebene Angriff lässt sich in mehrere einzelne Schritte u
 Im folgenden werden die einzelnen Schritte genauer beschrieben.
 
 \subsection{Memory Waylaying}
-In dem Paper werden zwei neue Methoden vorgestellt, um eine Seite an einer bestimmten physikalischen Adresse im Arbeitsspeicher zu platzieren. Dieser Prozess nennt sich Memory Waylaying. Hierbei wird im Gegensatz zu anderen Methoden nicht der gesamte Speicher mit Daten gefüllt, was die Entdeckung schwieriger macht. Das dies möglich ist, beruht darauf, dass, wenn Daten, wenn sie aus dem DRAM entfernt werden, beim Laden an eine zufällige Adresse platziert werden. Durch wiederholtes Anwenden dieser Methode kann die Seite an die richtige Position im Speicher positioniert werden.\\
+In dem Paper werden zwei neue Methoden vorgestellt, um eine Seite an einer bestimmten physikalischen Adresse im Arbeitsspeicher zu platzieren. Dieser Prozess nennt sich Memory Waylaying. Hierbei wird im Gegensatz zu anderen Methoden nicht der gesamte Speicher mit Daten gefüllt, was die Entdeckung schwieriger macht. Dass dies möglich ist, beruht darauf, dass, Daten, wenn sie aus dem DRAM entfernt werden, beim Laden an eine zufällige Adresse platziert werden. Durch wiederholtes Anwenden dieser Methode kann die Seite an die richtige Position im Speicher positioniert werden.\\
  Mit Hilfe eines Prefatch-based Prediction Oracle, näher beschrieben in \cite{DBLP:conf/ccs/2016}, kann dann überprüft werden, ob zwei virtuelle Adressen, auf die gleiche physikalische verweisen. Damit kann dann überprüft werden, ob eine Seite an einer bestimmten Stelle im Speicher liegt. Dieses Orakel besteht aus zwei Schritten. Zunächst der prefatch und dann eine Flush and Reload Attacke. \\
 Um das Memory Waylaying durchzuführen, müssen zunächst die Pages aus dem Cache entfernt werden, damit sie bei einem erneuten Zugriff eine neue physische Adresse erhalten. Man könnte diese Pages einfach entfernen, in dem man einfach eine genügend große Menge an Speicher allokiert. Dies kann aber zu Systemfehlern durch Mangel an Speicher erzeugen. Dementsprechend wird versucht eine bessere Möglichkeit zu finden. Man kann dies optimieren, indem man das Wissen hinzunimmt, dass nicht ausführbare Pages eher als ausführbare entfernt werden und ausführbare eher als ausführbare mit lesendem Zugriff. Außerdem muss man wissen, wann die zu entfernende Page nicht mehr im Cache ist. Dazu kann man entweder genügend Pages entfernen, sodass die Wahrscheinlichkeit groß genug ist, oder man kann überprüfen, zum Beispiel mit \texttt{mincore} unter Linux, ob die Page noch im Cache ist. Hierbei muss man abwägen, ob Geschwindigkeit oder Nichtaufdeckbarkeit wichtiger ist.\\
 Zusammen mit dem Prefatch-based Prediction Oracle kann man dann das Memory Waylaying durchführen und überprüfen, ob die Page an der richtigen Stelle positioniert ist. Die korrekte Position ist eine, von der man weiß, dass man hier einen Bitflip erzeugen kann.\\
@@ -145,7 +145,7 @@ Im Rahmen dieser Arbeit wird versucht den Rowhammer-Angriff nachzubilden. Dafür
 
 Da unter \cite{git-rowhammer} und \cite{git-prefetch} bereits Code von den Autoren der Arbeit \cite{DBLP:journals/corr/abs-1710-00551} zu Verfügung gestellt wird, liegt der Schwerpunkt auf den Tests und nicht auf der Implementation.
 
-Folgende Punkte sollen in den Tests überprüft werden, um zu evaluieren wie sich der Angriff in der Praxis verhält und an welchen stellen Probleme für einen realistischen Einsatz auftreten:
+Folgende Punkte sollen in den Tests überprüft werden, um zu evaluieren, wie sich der Angriff in der Praxis verhält und an welchen stellen Probleme für einen realistischen Einsatz auftreten:
 
 \begin{itemize}
 	\item Durchführbarkeit ~\\
@@ -168,7 +168,8 @@ Die Tests wurden auf folgender Hardware durchgeführt:
 % ermittel mit CPU: lscpu, Speicher: lshw -C memory
 \begin{itemize}
 	\item Intel i7-4700MQ CPU mit Samsung DDR3 1600MHz (M471B1G73QH0-YK0)
-	\item Poolrechner % TODO
+	\item Poolrechner: Intel Core i7-4770 mit DDR3 SDRAM 1600MHz
+	\item Intel i7 640M mit DDR3 1333 MHz (M471B5773DH0-CH9)
 \end{itemize}
 
 Hierbei wurden immer 64 Bit Betriebssysteme verwendet. Die Verwendeten Kernel Versionen waren dabei: 4.14.7, 4.14.0-2, 4.13.0-1, 4.9.0-3, 4.13.0-1 und 3.16.0-4
