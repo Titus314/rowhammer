@@ -39,17 +39,9 @@ Beim hierbei zu Grunde liegenden Modell, kann die Software Schutzmechanismen bes
 \end{abstract}
 
 \section{Motivation}
-\todo{Know what you want to do and why that is interesting (maybe with bullet points). But do not write this section until you know what you actually have done so that the motivation fits your work. Aus diesen genannten Gründen noch nicht geschrieben.}
-
-
-We will stick to the following timeline: (Zur Orientierung beibehalten)
-
-\begin{itemize}
-	\item 12/18:  Submission of motivation, background, project scope and related work: please give a description of the technical aspect of your work, i.e. detailed background description of attacks. Also describe related work and outline, in more detail, your technical steps.
-	\item 1/15: First version of report. This should be ver close to the final version, only technical parts that have not yet been finished should be missing.
-	\item 2/1 : Final submission of complete project description.
-	\item 2/8: Project Presentations in class: 25 minutes presentation plus questions. 
-\end{itemize}
+Das Ziel dieser Arbeit ist es, den aktuellen Stand der Rowhammer-Angriffe nachzubilden. In diesem Zusammenhang wird auf den One-Location Rowhammer Angriff eingegangen. Dies ist ein neuartiger Rowhammer Angriff, welcher aus technischer Sicht wesentlich einfacher durchzuführen ist, aber dessen Erfolgsquote deutlich geringer ist. Daher wollen wir untersuchen, ob dieser Angriff so einfach zu implementieren und auszuführen ist und ob die Erfolgsquote ausreichend hoch genug ist, um damit zuverlässig einen erfolgreichen Rowhammer Angriff durchzuführen.\\
+Dann betrachten wir noch Möglichkeiten, wie wir den One-Location Rowhammer Angriff, als Möglichkeit, Bitflips zu erzeugen, ausnutzen können, um einen vollständigen Angriff auf das System durchzuführen. Dafür interessiert und die Prefetch Side-Channel Attacke mit der physikalische Adressen für unsere Seiten im Speicher finden können. Außerdem interessieren uns Möglichkeiten, wie wir Seiten im Speicher an andere Adressen, an denen wir Bitflips erzeugen können, verschieben können. Dazu betrachten wir die Methoden des Memory Waylaying.\\
+Für alle diese vorgestellten Ideen versuchen wir jene auf unseren Systemen durchzuführen und damit zu überprüfen, wie einfach es ist, diese Angriffe durchzuführen, wie viele Ressourcen dafür benötigt werden und wie wahrscheinlich es ist, dass jene aufzudecken.
 
 \section{Hintergrund}\label{sec:background}
 Die hier betrachteten Rowhammer Angriffe basieren auf folgendem Modell. Das System, auf welchem der Angriff ausgeführt werden soll, besitzt keine Maßnahmen der Hardware, um Rowhammer Angriff zu entdecken und zu unterbinden. Die verwendete Software darf jedoch versuchen, zu erkennen, ob ein Angriff stattfindet, und jenen zu verhindern. Damit solch ein Angriff überhaupt ausgeführt werden kann, muss der Angreifer in der Lage sein, ein beliebiges, nicht privilegiertes Programm auf dem System zu starten.\\
