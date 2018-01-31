@@ -119,14 +119,11 @@ Diese Schritte können nun für alle virtuellen Adressen von \texttt{0xffff88000
 Um zuverlässig ein korrektes Ergebnis zu erhalten muss im dritten Schritt sehr hochauflösend die Zeit gemessen werden. Dies kann mit Hilfe des \texttt{rdtsc} Befehls erfolgen, mit dem die Anzahl an Clock-Zyklen der CPU gemessen werden können. Nach \cite{DBLP:conf/ccs/2016} liegt die Anzahl der Zyklen bei einem Zugriff auf Cache bei circa 180, und ansonsten bei circa 380.
 Weiter muss die Messung für jede zu prüfende Adresse aus dem Kernel Bereich sehr oft durchgeführt werden, da der \texttt{prefetch} Befehl nicht zuverlässig ist. Er weißt die CPU lediglich darauf hin, die Daten in den Cache zu laden. Die Entscheidung ob dies wirklich erfolgt, liegt jedoch bei der CPU.
 
-Wurde die passende Adresse im Kernel Bereich gefunden, lässt sich anschließend wie oben beschrieben die physikalische daraus ableiten. 
-% TODO code
-
+Wurde die passende Adresse im Kernel Bereich gefunden, lässt sich anschließend wie oben beschrieben die physikalische daraus ableiten.
 
 
 \subsection{Privilege Escalation Attacke}
 Mit den beschriebenen Methoden lassen sich zwei Arten von Angriffen durchführen: Eine Privilege Escalation Attacke oder eine Denial-of-Service Attacke. In diesem Projekt verwenden wir die Methoden, um eine Privilege Escalation Attacke durchzuführen und dadurch Root-Rechte auf dem System zu erhalten.
-
 
 
 \subsection{Abgrenzung des Themas}
@@ -167,10 +164,17 @@ Folgende Punkte sollen in den Tests überprüft werden, um zu evaluieren wie sic
 
 Bei den Tests ist es von Vorteil, dass alle Teilangriffe voneinander unabhängig ausgeführt und getestet werden können. Dadurch wird es möglich genau festzustellen, welcher Teil des Gesamtangriffs Probleme verursacht und welcher Teil funktioniert. In dem Fall, dass alle Teile des Angriffs einzeln funktionieren ist offensichtlich auch der Gesamtangriff möglich.
 
-% TODO verwendete rechner (architektur, cpu,...)
+Die Tests wurden auf folgender Hardware durchgeführt:
+% ermittel mit CPU: lscpu, Speicher: lshw -C memory
+\begin{itemize}
+	\item Intel i7-4700MQ CPU mit Samsung DDR3 1600MHz (M471B1G73QH0-YK0)
+	\item Poolrechner % TODO
+\end{itemize}
 
-% TODO vielleicht eher in results
-%Die Implementation zum One-Location Rowhammer hat auf unseren Systemen auch nach mehreren Stunden Laufzeit es nicht geschafft ein Bitflip im Speicher zu erzeugen. Daher haben wir auch versucht die Implementation zum double-sided Rowhammer zu verwenden, um einen Bitflip zu erzeugen. Mit Hilfe dieser Implementation haben wir es dann nach ungefähr einer halben Stunde geschafft einen Bitflip zu erzeugen.
+Hierbei wurden immer 64 Bit Betriebssysteme verwendet. Die Verwendeten Kernel Versionen waren dabei: 4.14.7, 4.14.0-2, 4.13.0-1, 4.9.0-3, 4.13.0-1 und 3.16.0-4
+
+
+
 
 \section{Ergebnisse}
 Hier werden die Ergebnisse der einzelnen Test für die Teilangriffe vorgestellt. Die Ergebnisse der Teile können dabei unterschiedlich betrachtet werden. Welche Auswirkungen die Ergebnisse der Teile für den Gesamtangriff haben wird im letzten Kapitel diskutiert.
