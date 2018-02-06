@@ -1,0 +1,146 @@
+%
+% THE BEER-WARE LICENSE (Rev. 42):
+% Ronny Bergmann <bergmann@math.uni-luebeck.de> wrote this file. As long as you
+% retain this notice you can do whatever you want with this stuff. If we meet
+% some day, and you think this stuff is worth it, you can buy me a beer or
+% coffee in return.
+%
+% This file is just to get started - You need the corresponding Logo
+%
+\documentclass[german,10pt,xcolor=colortbl,compress
+%,draft
+]{beamer}
+\usepackage{xunicode}
+%\usepackage[T1]{fontenc}
+\usepackage{calc}
+\usepackage[ngerman]{babel} % Neue Rechtschreibung
+\usepackage{amsmath,amsthm,amssymb,euscript} % AMS-LaTeX  
+\usepackage{enumerate,graphicx}
+\usepackage{makecell}
+
+% Load Them
+\usetheme[slogan=false, navigation=true, myriad=false]{UzL}
+%
+\setbeamertemplate{navigation symbols}{}
+\title{One-Location Rowhammer Angriff}
+% \subtitle{Eines Vortrages im neuen Design mit \LaTeX}
+\date[]{2. Februar 2018\\[1ex] Aktuelle Themen IT-Sicherheit und Zuverlässigkeit}
+\author[]{Gilian Henke, Dominik Mairhöfer}
+% Clear Logo 1 to make the head smaller
+%\institute[Universität zu Lübeck]{Institut für Mathematik\\Universität zu Lübeck}
+%\clearlogo{1}
+\setlogo{1}{.25\paperwidth}{Bilder/Logo_Uni_Luebeck_300dpi.png}%
+
+\begin{document}
+\section{Einführung}
+\maketitle
+
+
+\begin{frame}{Inhalt}
+	\tableofcontents
+\end{frame}
+
+% TODO Motivation und Ziel
+\begin{frame}{Motivation}
+
+\begin{itemize}
+	\item Neuer Rowhammer Angriff
+	\item Neue Technik zum Ausnutzen des Rowhammer Angriffs
+\end{itemize}
+\pause
+~\\
+Wie gut funktioniert der Angriff?
+~\\~\\
+\begin{itemize}
+	\item Durchführbarkeit des Angriffs testen
+	\begin{itemize}
+		\item schnell, zuverlässig, unauffällig, \dots
+		\item Voraussetzungen
+		\item Gegenmaßnahmen
+	\end{itemize}
+\end{itemize}
+
+\end{frame}
+
+% TODO Überblick über Angriff
+\begin{frame}{Der Angriff}
+
+\begin{itemize}
+	\item Ziel: Verändern einer ausführbaren Datei ohne Schreibrechte
+	\begin{itemize}
+		\item z.B. \texttt{sudo} Datei für lokale Rechteausweitung
+	\end{itemize}
+	\item Basieren auf drei Teilen
+	\begin{itemize}
+		\item One-Location Rowhammer\\
+		$ \Rightarrow $ Bitflips im Speicher erzeugen
+		
+		\item Memory Waylaing\\
+		$ \Rightarrow $ Dateien an bestimmten stellen im Speicher platzieren
+		
+		\item Prefetch Side-Channel Angriff\\
+		$ \Rightarrow $ Virtuelle Adressen in physikalische auflösen
+	\end{itemize}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Der Angriff - Ablauf}
+
+\begin{enumerate}
+	\item One-Location Rowhammer\\
+	$ \Rightarrow $ Finde virtuelle Adresse bei der Bitflip möglich ist\\~\\
+	\pause
+	\item Prefetch Side-Channel Angriff\\
+	$ \Rightarrow $ Finde physikalische Adressen zu dieser\\~\\
+	\pause
+	\item Memory Waylaying \& Prefetch Side-Channel Angriff\\
+	$ \Rightarrow $ Platziere ausführbare Datei an dieser physikalischen Adresse\\~\\
+	\pause
+	\item One-Location Rowhammer\\
+	$ \Rightarrow $ Erzeuge erneut Bitflip an gleicher physikalischer Adresse
+	
+\end{enumerate}
+
+\end{frame}
+
+
+\section{Hintergrund}
+\subsection{One-Location Rowhammer}
+% TODO  One-Location Rowhammer
+\begin{frame}{One-Location Rowhammer}
+
+\end{frame}
+
+\subsection{Memory Waylaing}
+% TODO Memory Waylaing
+\begin{frame}{Memory Waylaing}
+%This is slide number \only<1>{1a}\only<2>{2}\only<3>{3}\only<4>{4}\only<5>{5}.
+\end{frame}
+
+\subsection{Prefetch Side-Channel Angriff}
+% TODO Prefetch Side-Channel Angriff
+\begin{frame}{Prefetch Side-Channel Angriff}
+
+\end{frame}
+
+\section{Ergebnisse}
+% TODO Ergbnisse
+\begin{frame}{Ergebnisse - One-Location Rowhammer}
+
+\end{frame}
+\begin{frame}{Ergebnisse - Memory Waylaing}
+
+\end{frame}
+\begin{frame}{Ergebnisse - Prefetch Side-Channel Angriff}
+
+\end{frame}
+
+\section{Fazit}
+% TODO Fazit
+\begin{frame}{Fazit}
+
+\end{frame}
+	
+	
+\end{document}

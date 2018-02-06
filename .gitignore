@@ -1,0 +1,13 @@
+# TeX Files #
+*.aux
+*.log
+*.gz
+*.toc
+*.idx
+*.ilg
+*.ind
+*.out
+*.bbl
+*.blg
+*.nav
+*.snm
