@@ -10,8 +10,10 @@
 \documentclass[german,10pt,xcolor=colortbl,compress
 %,draft
 ]{beamer}
-\usepackage{xunicode}
-%\usepackage[T1]{fontenc}
+%\usepackage{xunicode}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
 \usepackage{calc}
 \usepackage[ngerman]{babel} % Neue Rechtschreibung
 \usepackage{amsmath,amsthm,amssymb,euscript} % AMS-LaTeX  
@@ -26,7 +28,7 @@
 \setbeamertemplate{navigation symbols}{}
 \title{One-Location Rowhammer Angriff}
 % \subtitle{Eines Vortrages im neuen Design mit \LaTeX}
-\date[]{2. Februar 2018\\[1ex] Aktuelle Themen IT-Sicherheit und Zuverlässigkeit}
+\date[]{8. Februar 2018\\[1ex] Aktuelle Themen IT-Sicherheit und Zuverlässigkeit}
 \author[]{Gilian Henke, Dominik Mairhöfer}
 % Clear Logo 1 to make the head smaller
 %\institute[Universität zu Lübeck]{Institut für Mathematik\\Universität zu Lübeck}
@@ -111,7 +113,19 @@ Wie gut funktioniert der Angriff?
 \subsection{One-Location Rowhammer}
 % TODO  One-Location Rowhammer
 \begin{frame}{One-Location Rowhammer}
-
+\begin{itemize}
+\item Idee Rowhammer
+	\begin{itemize}
+	\item Speicher benötigt immer weniger Spannung
+	\item Geringe Änderungen der Spannung führen zu Bitflip
+	\item Werden Beeinflusst durch benachbarten Speicher
+	\\$\Rightarrow$ Manipulieren von Speicher durch Wiederholten Zugriff auf benachbarte 	Speicherzellen
+	\end{itemize}~\\
+\item Idee One-Location Rowhammer
+	\begin{itemize}
+	\item Nur eine Position wird \glqq gehämmert\grqq
+	\end{itemize}
+\end{itemize}
 \end{frame}
 
 \subsection{Memory Waylaying}
@@ -131,9 +145,27 @@ Wie gut funktioniert der Angriff?
 \section{Ergebnisse}
 % TODO Ergbnisse
 \begin{frame}{Ergebnisse - One-Location Rowhammer}
+\begin{itemize}
+\item Keine Erzeugung von Bitflips mit One-Location Rowhammer im Zeitrahmen möglich
+\item Getestete Systeme waren anfällig gegen Rowhammer-Angriffe
+	\begin{itemize}
+	\item Erzeugung eines Bitflips mit Double-Sided Rowhammer in 30 Minuten
+	\end{itemize}
+\item Geringe CPU-Auslastung
+\item Hohe Speicherauslastung
+\item Verhinderung durch ECC-Speicher oder Überwachung des Systems
+\end{itemize}
 
 \end{frame}
+
 \begin{frame}{Ergebnisse - Memory Waylaing}
+\begin{itemize}
+\item Einmaliges Ändern der physikalischen Adresse einer Seite: 3,5 Sekunden
+\item Platzieren einer Seite an gewünschter physikalischer Adresse: min. 40 Stunden
+\item Geringe CPU-Auslastung
+\item Wird nicht langsamer bei hoher Belastung des Rechners
+\item Verhinderung durch Überwachung des Systems
+\end{itemize}
 
 \end{frame}
 \begin{frame}{Ergebnisse - Prefetch Side-Channel Angriff}
@@ -143,7 +175,17 @@ Wie gut funktioniert der Angriff?
 \section{Fazit}
 % TODO Fazit
 \begin{frame}{Fazit}
-
+\begin{itemize}
+\item Bitflips können erzeugt werden
+\item Seiten können an passende Stellen im Speicher positioniert werden
+\\$\Rightarrow$ Angriff prinzipiell durchführbar
+\item Unauffälligkeit des Angriffes durch SGX
+\item Bleibende Probleme
+	\begin{itemize}
+	\item Langsame Laufzeit der Teilschritte
+	\item Prefetch Side-Channel Angriff
+	\end{itemize}
+\end{itemize}
 \end{frame}
 	
 	
