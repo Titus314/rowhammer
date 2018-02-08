@@ -12,7 +12,7 @@
 ]{beamer}
 %\usepackage{xunicode}
 
-\usepackage[T1]{fontenc}
+% \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{calc}
 \usepackage[ngerman]{babel} % Neue Rechtschreibung
@@ -20,7 +20,7 @@
 \usepackage{enumerate,graphicx}
 \usepackage{makecell}
 \usepackage{tikz}
-\usetikzlibrary{patterns}
+\usetikzlibrary{patterns,arrows}
 
 % Load Them
 \usetheme[slogan=false, navigation=true, myriad=false]{UzL}
@@ -128,21 +128,89 @@ Wie gut funktioniert der Angriff?
 \end{itemize}
 \end{frame}
 
+\begin{frame}{One-Location Rowhammer - Beispiel}
+\only<1>{\texttt{load} \input{Bilder/rowhammer1}}
+\only<2>{\texttt{flush} \input{Bilder/rowhammer2}}
+\only<3>{\texttt{load} \input{Bilder/rowhammer3}}
+\only<4>{\texttt{flush} \input{Bilder/rowhammer4}}
+\only<5>{\texttt{load} \input{Bilder/rowhammer5}}
+\only<6>{\texttt{flush} \input{Bilder/rowhammer6}}
+\only<7>{\texttt{load} \input{Bilder/rowhammer7}}
+\end{frame}
+
 \subsection{Memory Waylaying}
 % TODO Memory Waylaing
 \begin{frame}{Memory Waylaying}
-\input{Bilder/waylaying1}
+\begin{itemize}
+	\item Datei an bestimmter Stelle im Speicher platzieren
+	\begin{itemize}
+		\item Datei schreibbar laden $ \Rightarrow $ neue Kopie im Speicher
+		\item Datei aus Speicher entfernen und wieder neu laden
+		\begin{itemize}
+			\item Datei an neuer Adresse
+			\item Mit Prefetch Side-Channel Angriff Adresse überprüfen
+			\item Wiederholen bis Datei an richtiger Adresse
+		\end{itemize}
+		\item Speicher komplett mit eigenen Dateien füllen $ \Rightarrow $ original Datei wird entfernt
+		\item Eigene Kopie aus Speicher entfernen und original Datei lesbar laden
+	\end{itemize}
+\end{itemize}
+\end{frame}
 
-%This is slide number \only<1>{1a}\only<2>{2}\only<3>{3}\only<4>{4}\only<5>{5}.
+\begin{frame}{Memory Waylaying - Beispiel}
+\only<1>{Datei laden \input{Bilder/waylaying1}}
+\only<2>{Datei neu laden \input{Bilder/waylaying2}}
+\only<3>{Datei neu laden \input{Bilder/waylaying3}}
+\only<4>{Datei neu laden - richtige Position \input{Bilder/waylaying4}}
+\only<5>{Speicher füllen, eigene Datei entfernen \input{Bilder/waylaying5}}
+\only<6>{Original Datei neu laden \input{Bilder/waylaying6}}
 \end{frame}
 
 \subsection{Prefetch Side-Channel Angriff}
 % TODO Prefetch Side-Channel Angriff
 \begin{frame}{Prefetch Side-Channel Angriff}
+\begin{itemize}
+	\item Physikalische Adressen zu virtuellen Adressen finden
+	\item Nutzt das direct mapping im Kernelspace
+	\begin{itemize}
+		\item physikalischer Speicher ist im Kernelspace gemappt
+		\item virt: \texttt{0xffff880000000000} $ \Rightarrow $ phys. \texttt{0x00000}\\
+		virt: \texttt{0xffff880000000001} $ \Rightarrow $ phys. \texttt{0x00001}\\
+		~\vdots
+	\end{itemize}
+	\item Jede Adresse zweimal gemapt: Userspace und Kernelspace
+	\item \texttt{prefetch} Befehl ermöglicht laden aller Adressen in den Cache \\
+	$ \Rightarrow $ Timing Angriff
+\end{itemize}
+\end{frame}
 
+\begin{frame}{Prefetch Side-Channel Angriff - Beispiel}
+\only<1>{~\\\input{Bilder/prefetch1}}
+\only<2>{~\\\input{Bilder/prefetch2}}
+\only<3>{\texttt{flush 0x123, prefetch 0xff\dots0000, reload 0x123}\input{Bilder/prefetch3}}
+\only<4>{\texttt{flush 0x123, prefetch 0xff\dots0001, reload 0x123}\input{Bilder/prefetch4}}
+\only<5>{\texttt{flush 0x123, prefetch 0xff\dots0002, reload 0x123}\input{Bilder/prefetch5}}
+\only<6>{\texttt{flush 0x123, prefetch 0xff\dots0010, reload 0x123}\input{Bilder/prefetch6}}
+\only<7>{\texttt{flush 0x123, prefetch 0xff\dots0042, reload 0x123}\input{Bilder/prefetch7}}
 \end{frame}
 
 \section{Ergebnisse}
+\begin{frame}{Testbeschreibung}
+\begin{itemize}
+	\item Durchführbarkeit
+	\begin{itemize}
+		\item Funktioniert der Angriff überhaupt?
+		\item Gibt es Voraussetzungen in Hard- oder Software?
+	\end{itemize}
+	\item Zuverlässigkeit
+	\begin{itemize}
+		\item Funktioniert der Angriff immer?
+		\item Welche Bedingungen sind optimal? (CPU Last, Speicherauslastung...)
+	\end{itemize}
+	\item Schnelligkeit
+	\item Unauffälligkeit
+\end{itemize}
+\end{frame}
 % TODO Ergbnisse
 \begin{frame}{Ergebnisse - One-Location Rowhammer}
 \begin{itemize}
@@ -169,7 +237,21 @@ Wie gut funktioniert der Angriff?
 
 \end{frame}
 \begin{frame}{Ergebnisse - Prefetch Side-Channel Angriff}
-
+\begin{itemize}
+	\item Finden der physikalischen Adresse bei uns nicht möglich
+	\begin{itemize}
+		\item Kein laden in den Cache durch \texttt{prefetch} im Kernelspace
+		\item Im Userspace funktioniert der Code
+	\end{itemize}
+	\item Gepatcht? Durch KPTI (Meltdown) wird der Angriff verhindert
+	\begin{itemize}
+		\item Funktionierte auch mit alten Kerneln nicht
+		\item Ursache unklar
+	\end{itemize}
+	\item Testen des direct mappings dauert sehr lange
+	\item Sehr hohe CPU Last
+	\item Teileweise viele false positives
+\end{itemize}
 \end{frame}
 
 \section{Fazit}
@@ -179,12 +261,14 @@ Wie gut funktioniert der Angriff?
 \item Bitflips können erzeugt werden
 \item Seiten können an passende Stellen im Speicher positioniert werden
 \\$\Rightarrow$ Angriff prinzipiell durchführbar
+\item Prefetch Side-Channel Angriff funktioniert bei uns nicht
 \item Unauffälligkeit des Angriffes durch SGX
 \item Bleibende Probleme
 	\begin{itemize}
 	\item Langsame Laufzeit der Teilschritte
 	\item Prefetch Side-Channel Angriff
 	\end{itemize}
+\item Durch KPTI wird der Angriff komplett verhindert
 \end{itemize}
 \end{frame}
 	
